@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-drag: none; }
+html, body { background: transparent; overflow: hidden; }
+body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; color: #3f3f46; }
+
+.card {
+  height: 100vh;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fffbf5 0%, #fff1e6 60%, #ffe4d6 100%);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  display: flex;
+  align-items: center;
+  padding: 22px 28px;
+  gap: 22px;
+  position: relative;
+  animation: cardIn 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.closeBtn {
+  position: absolute;
+  top: 10px; right: 12px;
+  width: 28px; height: 28px;
+  border: none; border-radius: 9px;
+  background: transparent;
+  font-size: 15px; line-height: 1;
+  color: #9a3412; cursor: pointer;
+  transition: background 0.15s;
+}
+.closeBtn:hover { background: rgba(255, 255, 255, 0.75); }
+.closeBtn.locked { color: #c4b5a5; cursor: not-allowed; }
+.closeBtn.locked:hover { background: transparent; }
+@keyframes cardIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.catBox {
+  width: 128px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  height: 100%;
+}
+.catBox.slappable { cursor: pointer; }
+.catBox img {
+  position: absolute;
+  bottom: 6px;
+  max-height: 88%;
+  max-width: 100%;
+  animation: hissBob 2s ease-in-out infinite;
+}
+.catBox.slap { animation: slapBounce 0.22s cubic-bezier(0.34, 1.4, 0.64, 1); }
+@keyframes hissBob {
+  0%, 100% { transform: translateY(0); }
+  12% { transform: translateY(-10px); }
+  22% { transform: translateY(0); }
+}
+@keyframes slapBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.85) rotate(-5deg); }
+  100% { transform: scale(1); }
+}
+
+.main { flex: 1; min-width: 0; }
+.eyebrow {
+  font-size: 13px; font-weight: 700; letter-spacing: 2px; color: #f97316;
+  margin-bottom: 4px;
+}
+.time {
+  font-size: 62px; font-weight: 800; color: #7c2d12; line-height: 1.05;
+  font-variant-numeric: tabular-nums; letter-spacing: 1px;
+}
+.time small { font-size: 24px; font-weight: 700; color: #ea580c; margin-left: 2px; }
+.alarmMeta { font-size: 14px; color: #9a3412; margin-top: 6px; font-weight: 600; }
+.purpose {
+  margin-top: 10px; font-size: 15px; font-weight: 600; color: #57534e;
+  background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 12px; padding: 8px 14px; display: inline-block;
+}
+.btns { margin-top: 18px; display: flex; gap: 10px; }
+.btn {
+  padding: 11px 22px; font-size: 14px; font-weight: 700; border: none;
+  border-radius: 999px; cursor: pointer; transition: all 0.15s;
+}
+.btn.stop {
+  background: linear-gradient(135deg, #fb923c, #ef4444); color: #fff;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+.btn.stop:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.btn.stop:disabled {
+  background: #d6d3d1; color: #a8a29e; box-shadow: none; cursor: not-allowed;
+}
+.btn.stop:disabled:hover { filter: none; transform: none; }
+.btn.stop.ready { animation: readyPulse 0.8s ease-in-out infinite; }
+@keyframes readyPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.btn.snooze { background: rgba(255, 255, 255, 0.9); color: #9a3412; border: 1.5px solid rgba(249, 115, 22, 0.4); }
+.btn.snooze:hover { background: #fff7ed; }
+
+.challenge {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px dashed rgba(249, 115, 22, 0.45);
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+.chInfo { font-size: 13px; font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+.chInfo b { color: #ef4444; font-size: 15px; }
+.chBar {
+  height: 10px; border-radius: 999px; background: #fde8d7; overflow: hidden;
+}
+.chFill {
+  height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, #fb923c, #ef4444);
+  transition: width 0.2s ease;
+}
+.chDone { color: #16a34a; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="card">
+  <button class="closeBtn" id="btnClose" title="停止">✕</button>
+  <div class="catBox" id="catBox">
+    <img id="catIdle" draggable="false" alt="">
+    <img id="catHiss" class="hidden" draggable="false" alt="">
+  </div>
+  <div class="main">
+    <div class="eyebrow">闹 钟 响 了</div>
+    <div class="time"><span id="timeBig">--:--</span><small id="sec"></small></div>
+    <div class="alarmMeta" id="alarmTimeLabel"></div>
+    <div class="purpose hidden" id="purpose"></div>
+    <div class="btns">
+      <button class="btn snooze" id="btnSnooze">稍后提醒（5 分钟）</button>
+      <button class="btn stop" id="btnStop">停止闹钟</button>
+    </div>
+    <div class="challenge hidden" id="challengeBox">
+      <div class="chInfo" id="chInfo">拍打猫咪 <b id="slapsLeft">5</b> 次才能停止</div>
+      <div class="chBar"><div class="chFill" id="chFill"></div></div>
+    </div>
+  </div>
+</div>
+<script src="alarm.js"></script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-drag: none; }
+html, body { background: transparent; overflow: hidden; }
+body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; color: #3f3f46; }
+
+.card {
+  height: 100vh;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+}
+.header img { width: 36px; height: 36px; border-radius: 8px; }
+.header .title { font-size: 16px; font-weight: 700; color: #7c2d12; }
+.header .sub { font-size: 12px; color: #b45309; margin-top: 1px; }
+.closeBtn {
+  -webkit-app-region: no-drag;
+  margin-left: auto;
+  width: 30px; height: 30px;
+  border: none; border-radius: 9px;
+  background: transparent;
+  font-size: 17px; line-height: 1;
+  color: #7c2d12; cursor: pointer;
+  transition: background 0.15s;
+}
+.closeBtn:hover { background: rgba(255, 255, 255, 0.75); }
+
+.body { flex: 1; padding: 16px 20px; overflow-y: auto; }
+
+.section { font-size: 12px; font-weight: 700; color: #b45309; letter-spacing: 1px; margin: 4px 0 10px; }
+.section:not(:first-child) { margin-top: 22px; }
+
+.row { margin-bottom: 16px; }
+.row .label { font-size: 13px; font-weight: 600; margin-bottom: 7px; color: #52525b; }
+.row.space { display: flex; justify-content: space-between; align-items: center; }
+.row.space .label { margin-bottom: 0; }
+
+.switch { position: relative; width: 44px; height: 25px; display: inline-block; flex-shrink: 0; }
+.switch input { display: none; }
+.switch .slider {
+  position: absolute; inset: 0; border-radius: 999px; background: #e4e4e7;
+  transition: background 0.2s; cursor: pointer;
+}
+.switch .slider::before {
+  content: ''; position: absolute; width: 19px; height: 19px; left: 3px; top: 3px;
+  border-radius: 50%; background: #fff; transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.switch input:checked + .slider { background: #f97316; }
+.switch input:checked + .slider::before { transform: translateX(19px); }
+.switch.small { width: 38px; height: 22px; }
+.switch.small .slider::before { width: 16px; height: 16px; top: 3px; left: 3px; }
+.switch.small input:checked + .slider::before { transform: translateX(16px); }
+
+input[type="time"], input[type="text"] {
+  width: 100%; padding: 9px 12px; font-size: 14px; border: 1.5px solid #e4e4e7;
+  border-radius: 10px; outline: none; font-family: inherit; color: #3f3f46;
+  -webkit-user-drag: auto; user-select: text;
+}
+input[type="time"]:focus, input[type="text"]:focus { border-color: #f97316; }
+
+.sliderRow { display: flex; align-items: center; gap: 12px; }
+.sliderRow input[type="range"] { flex: 1; accent-color: #f97316; }
+.valLabel {
+  min-width: 46px; text-align: right; font-size: 12.5px; font-weight: 700;
+  color: #c2410c; font-variant-numeric: tabular-nums;
+}
+
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { flex: 1; min-width: 0; }
+.chip input { display: none; }
+.chip span {
+  display: block; text-align: center; padding: 8px 0; font-size: 13px; font-weight: 600;
+  border: 1.5px solid #e4e4e7; border-radius: 10px; cursor: pointer; transition: all 0.15s;
+  background: #fff; color: #71717a; white-space: nowrap;
+}
+.chip input:checked + span {
+  border-color: #f97316; background: #fff7ed; color: #c2410c;
+}
+.chips.weekdays { gap: 6px; }
+.chips.weekdays .chip { flex: 0 0 auto; }
+.chips.weekdays .chip span { padding: 8px 11px; font-size: 12.5px; }
+.chips.weekdays .chip input:checked + span { background: #ffedd5; }
+
+.previewBtn {
+  width: 100%; padding: 8px 0; margin-top: 8px; font-size: 12.5px; font-weight: 600;
+  border: 1.5px dashed #e4e4e7; border-radius: 10px; background: #fafafa; color: #f97316;
+  cursor: pointer; transition: all 0.15s;
+}
+.previewBtn:hover { background: #fff7ed; border-color: #f97316; }
+.previewBtn.playing { background: #fff7ed; border-color: #f97316; color: #c2410c; }
+
+.libPanel {
+  margin-top: 8px;
+  border: 1.5px solid #e4e4e7;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.libList { max-height: 150px; overflow-y: auto; }
+.libRow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; cursor: pointer; border-bottom: 1px solid #f4f4f5;
+  transition: background 0.12s;
+}
+.libRow:last-child { border-bottom: none; }
+.libRow:hover { background: #fafafa; }
+.libRow.selected { background: #fff7ed; }
+.libRow.selected .libName { color: #c2410c; font-weight: 600; }
+.libName {
+  flex: 1; min-width: 0; font-size: 12.5px; color: #52525b;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.libNameInput {
+  flex: 1; min-width: 0; font-size: 12.5px; padding: 3px 6px;
+  border: 1.5px solid #f97316; border-radius: 6px; outline: none; font-family: inherit;
+  -webkit-user-drag: auto; user-select: text;
+}
+.libDur { flex-shrink: 0; font-size: 11px; color: #a1a1aa; font-variant-numeric: tabular-nums; }
+.libBadge {
+  flex-shrink: 0; font-size: 10.5px; font-weight: 700; color: #c2410c;
+  background: #ffedd5; border-radius: 999px; padding: 2px 7px;
+}
+.libBtn {
+  width: 26px; height: 26px; flex-shrink: 0;
+  border: none; border-radius: 8px; background: transparent;
+  font-size: 12px; color: #71717a; cursor: pointer; transition: all 0.12s;
+}
+.libBtn:hover { background: #ffedd5; color: #c2410c; }
+.libBtn.playing { color: #c2410c; background: #ffedd5; }
+.libBtn.del:hover { background: #fee2e2; color: #dc2626; }
+.libEmpty { padding: 18px 10px; text-align: center; font-size: 12.5px; color: #a1a1aa; }
+.importBtn {
+  width: 100%; padding: 8px 0; font-size: 12.5px; font-weight: 600;
+  border: none; border-top: 1px dashed #e4e4e7; background: #fafafa; color: #f97316;
+  cursor: pointer; transition: background 0.15s;
+}
+.importBtn:hover { background: #fff7ed; }
+
+.alarmList {
+  border: 1.5px solid #e4e4e7;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.alarmRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f4f4f5;
+  transition: background 0.12s;
+}
+.alarmRow:last-child { border-bottom: none; }
+.alarmRow:hover { background: #fafafa; }
+.alarmRow.selected { background: #fff7ed; }
+.alarmRow .info { flex: 1; min-width: 0; }
+.alarmRow .info .t { font-size: 15px; font-weight: 700; color: #3f3f46; font-variant-numeric: tabular-nums; }
+.alarmRow.selected .info .t { color: #c2410c; }
+.alarmRow .info .s {
+  font-size: 11.5px; color: #a1a1aa; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.alarmRow.off .info { opacity: 0.5; }
+.alarmRow .delBtn {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: none; border-radius: 8px; background: transparent;
+  font-size: 13px; color: #a1a1aa; cursor: pointer; transition: all 0.12s;
+}
+.alarmRow .delBtn:hover { background: #fee2e2; color: #dc2626; }
+.emptyAlarms {
+  padding: 16px 10px; text-align: center; font-size: 12.5px; color: #a1a1aa;
+  border: 1.5px dashed #e4e4e7; border-radius: 12px; margin-bottom: 10px;
+}
+.addBtn {
+  width: 100%; padding: 9px 0; margin-bottom: 4px; font-size: 13px; font-weight: 600;
+  border: 1.5px dashed #e4e4e7; border-radius: 10px; background: #fafafa; color: #f97316;
+  cursor: pointer; transition: all 0.15s;
+}
+.addBtn:hover { background: #fff7ed; border-color: #f97316; }
+
+.footer { display: flex; gap: 10px; padding: 14px 18px; border-top: 1px solid #f4f4f5; }
+.btn {
+  flex: 1; padding: 11px 0; font-size: 14px; font-weight: 700; border: none;
+  border-radius: 12px; cursor: pointer; transition: all 0.15s;
+}
+.btn.primary { background: linear-gradient(135deg, #fb923c, #f97316); color: #fff; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.ghost { background: #f4f4f5; color: #52525b; }
+.btn.ghost:hover { background: #e9e9ec; }
+
+.hidden { display: none !important; }
+.hint { font-size: 11.5px; color: #a1a1aa; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <img id="headerIcon" alt="">
+    <div>
+      <div class="title">闹钟设置</div>
+      <div class="sub">猫咪哈气闹钟</div>
+    </div>
+    <button class="closeBtn" id="btnClose" title="关闭">✕</button>
+  </div>
+  <div class="body">
+    <div class="section">闹钟列表</div>
+    <div id="alarmList"></div>
+    <button class="addBtn" id="btnAdd">＋ 新增闹钟</button>
+
+    <div class="section" id="editorTitle">编辑闹钟</div>
+    <div id="editor" class="hidden">
+      <div class="row">
+        <div class="label">响铃时间</div>
+        <input type="time" id="time" value="08:00">
+      </div>
+      <div class="row">
+        <div class="label">定时目的</div>
+        <input type="text" id="purpose" placeholder="例如：起床、喝水、吃药…" maxlength="20">
+      </div>
+      <div class="row">
+        <div class="label">重复方式</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="repeat" value="daily"><span>每天</span></label>
+          <label class="chip"><input type="radio" name="repeat" value="once"><span>仅一次</span></label>
+          <label class="chip"><input type="radio" name="repeat" value="weekly"><span>每周</span></label>
+        </div>
+      </div>
+      <div class="row hidden" id="weekdayRow">
+        <div class="label">响铃星期</div>
+        <div class="chips weekdays" id="weekdayChips">
+          <label class="chip"><input type="checkbox" value="1"><span>一</span></label>
+          <label class="chip"><input type="checkbox" value="2"><span>二</span></label>
+          <label class="chip"><input type="checkbox" value="3"><span>三</span></label>
+          <label class="chip"><input type="checkbox" value="4"><span>四</span></label>
+          <label class="chip"><input type="checkbox" value="5"><span>五</span></label>
+          <label class="chip"><input type="checkbox" value="6"><span>六</span></label>
+          <label class="chip"><input type="checkbox" value="7"><span>日</span></label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label">闹铃音乐</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="music" value="builtin"><span>内置铃声</span></label>
+          <label class="chip"><input type="radio" name="music" value="library"><span>音频库</span></label>
+        </div>
+        <button class="previewBtn" id="btnPreview">▶ 试听当前铃声</button>
+        <div class="libPanel hidden" id="libPanel">
+          <div class="libList" id="musicList"></div>
+          <button class="importBtn" id="btnImport">＋ 导入音频</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label">铃声音量</div>
+        <div class="sliderRow">
+          <input type="range" id="volume" min="0" max="100" step="5" value="90">
+          <span class="valLabel" id="volumeVal">90%</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="label">稍后提醒时长</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="snooze" value="5"><span>5 分钟</span></label>
+          <label class="chip"><input type="radio" name="snooze" value="10"><span>10 分钟</span></label>
+          <label class="chip"><input type="radio" name="snooze" value="15"><span>15 分钟</span></label>
+          <label class="chip"><input type="radio" name="snooze" value="30"><span>30 分钟</span></label>
+        </div>
+      </div>
+      <div class="row space">
+        <div>
+          <div class="label" style="margin-bottom:0">音量渐强</div>
+          <div class="hint">铃声从小到大逐渐升高，不吓人</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="rampEnabled"><span class="slider"></span></label>
+      </div>
+      <div class="row hidden" id="rampRow">
+        <div class="label">渐强时长</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="rampSeconds" value="30"><span>30 秒</span></label>
+          <label class="chip"><input type="radio" name="rampSeconds" value="60"><span>60 秒</span></label>
+          <label class="chip"><input type="radio" name="rampSeconds" value="90"><span>90 秒</span></label>
+          <label class="chip"><input type="radio" name="rampSeconds" value="120"><span>120 秒</span></label>
+          <label class="chip"><input type="radio" name="rampSeconds" value="180"><span>180 秒</span></label>
+        </div>
+      </div>
+      <div class="row space">
+        <div>
+          <div class="label" style="margin-bottom:0">起床挑战</div>
+          <div class="hint">响铃时需拍打猫咪多次才能停止</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="challengeEnabled"><span class="slider"></span></label>
+      </div>
+      <div class="row hidden" id="challengeRow">
+        <div class="label">需要拍打次数</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="challengeSlaps" value="3"><span>3 次</span></label>
+          <label class="chip"><input type="radio" name="challengeSlaps" value="5"><span>5 次</span></label>
+          <label class="chip"><input type="radio" name="challengeSlaps" value="8"><span>8 次</span></label>
+          <label class="chip"><input type="radio" name="challengeSlaps" value="10"><span>10 次</span></label>
+          <label class="chip"><input type="radio" name="challengeSlaps" value="15"><span>15 次</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">宠物</div>
+    <div class="row">
+      <div class="label">宠物大小</div>
+      <div class="sliderRow">
+        <input type="range" id="petScale" min="45" max="350" step="5" value="100">
+        <span class="valLabel" id="petScaleVal">100%</span>
+      </div>
+      <div class="hint">默认 100%，猫咪会根据屏幕大小自动限制最大尺寸</div>
+    </div>
+    <div class="row space">
+      <div>
+        <div class="label" style="margin-bottom:0">开机自启</div>
+        <div class="hint">安装版应用支持，登录系统后自动运行</div>
+      </div>
+      <label class="switch"><input type="checkbox" id="autoStart"><span class="slider"></span></label>
+    </div>
+  </div>
+  <div class="footer">
+    <button class="btn ghost" id="btnCancel">取消</button>
+    <button class="btn primary" id="btnSave">保存</button>
+  </div>
+</div>
+<script src="settings.js"></script>
+</body>
+</html>

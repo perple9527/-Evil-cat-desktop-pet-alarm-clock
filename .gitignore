@@ -1,0 +1,26 @@
+# ===== 依赖 =====
+node_modules/
+
+# ===== 打包 / 构建产物 =====
+dist/
+release/
+out/
+*.exe
+*.7z
+
+# ===== IDE / 编辑器 个人配置 =====
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# ===== 系统文件 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 日志 =====
+*.log
+npm-debug.log*
+yarn-error.log*

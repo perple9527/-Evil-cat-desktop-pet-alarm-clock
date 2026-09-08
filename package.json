@@ -1,0 +1,46 @@
+{
+  "name": "cat-hiss-alarm",
+  "productName": "猫咪哈气闹钟",
+  "version": "1.0.0",
+  "description": "一只会哈气的猫咪桌面宠物闹钟",
+  "main": "main.js",
+  "author": "maodie",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^44.2.0",
+    "electron-builder": "^26.15.3"
+  },
+  "scripts": {
+    "start": "node scripts/start.js",
+    "gen:alarm": "node scripts/gen-alarm.js",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.maodie.cathissalarm",
+    "productName": "猫咪哈气闹钟",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "pet.js",
+      "pet.css",
+      "settings.html",
+      "settings.js",
+      "alarm.html",
+      "alarm.js",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": ["portable", "nsis"],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
