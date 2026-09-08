@@ -4,7 +4,7 @@
 
 This is my first project. The main function is to set a purposeful alarm clock with timing function. You can see the time left from the target. You can set music by yourself. However, it is a bad cat. Don't try to click it.
 
-一只住在桌面上的猫咪，陪你数着时间过日子。点击它，它会「哈」你一口；到了设定好的时间，它会跳出来叫你起床。
+一只住在桌面上的耄耋，陪你数着时间过日子。
 
 基于 Electron 的 Windows 桌面宠物闹钟，无边框透明窗口，常驻屏幕角落。
 
