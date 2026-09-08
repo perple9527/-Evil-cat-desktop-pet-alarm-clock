@@ -1,4 +1,4 @@
-# 猫咪哈气闹钟 🐱
+# 猫咪哈气闹钟
 
 这是我的第一个项目，主要作用是设置一个有目的闹钟，有定时功能，能够看到距离目标还剩的时间，可以自己设定音乐，但是它是一只坏猫，不要尝试去点击它。
 
@@ -10,7 +10,7 @@ This is my first project. The main function is to set a purposeful alarm clock w
 
 ![猫咪桌面宠物](assets/等待.png)
 
-## ✨ 功能特性
+## 功能特性
 
 - **桌面宠物**：透明无边框窗口，猫咪趴在屏幕角落，不挡工作
 - **点击互动**：点击猫咪会哈气（表情 + 音效 + 弹跳动画）
@@ -26,7 +26,7 @@ This is my first project. The main function is to set a purposeful alarm clock w
 - **自由调节**：按住拖动位置，拖动左上角手柄缩放大小，自动限制不超出屏幕
 - **开机自启**：安装版支持登录系统后自动运行
 
-## 🚀 快速开始
+## 快速开始
 
 ### 环境要求
 
@@ -60,7 +60,7 @@ npm run dist
 - `猫咪哈气闹钟 Setup 1.0.0.exe` — 安装版（可选安装目录，支持开机自启）
 - `猫咪哈气闹钟 1.0.0.exe` — 免安装便携版
 
-## 🖱️ 使用说明
+## 使用说明
 
 | 操作 | 效果 |
 | --- | --- |
@@ -74,7 +74,7 @@ npm run dist
 
 闹钟设置窗口支持新增、编辑、删除闹钟，以及导入自定义铃声。
 
-## 📁 项目结构
+## 项目结构
 
 ```
 cat-hiss-alarm/
@@ -95,7 +95,7 @@ cat-hiss-alarm/
 └── package.json
 ```
 
-## 🛠️ 技术要点
+## 技术要点
 
 - 三个独立 `BrowserWindow`：宠物、设置、响铃，均为无边框透明、置顶（screen-saver 层级）
 - 命中检测：渲染进程将猫咪 PNG 的 alpha 通道采样成网格，鼠标穿透只作用于透明区域，点击精确到猫的轮廓
@@ -103,6 +103,6 @@ cat-hiss-alarm/
 - 单实例锁：重复启动时唤醒已存在的猫咪
 - 数据持久化：设置保存在 `userData/settings.json`，导入的音频保存在 `userData/library/`
 
-## 📄 License
+## License
 
 [MIT](LICENSE)
